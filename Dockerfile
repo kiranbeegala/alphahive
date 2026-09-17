@@ -1,20 +1,8 @@
 # ==========================================
-# Multi-Stage Production Dockerfile for AlphaHive
-# Packages React Frontend + FastAPI Multi-Agent Engine
+# Production Dockerfile for AlphaHive
+# FastAPI Multi-Agent Engine + React SPA Dist
 # ==========================================
-
-# Stage 1: Build React Frontend
-FROM node:20-slim AS frontend-builder
-WORKDIR /app/frontend
-
-COPY frontend/package*.json ./
-RUN npm install
-
-COPY frontend/ ./
-RUN npm run build
-
-# Stage 2: Python Multi-Agent Backend Runner
-FROM python:3.11-slim AS runner
+FROM python:3.11-slim
 
 WORKDIR /app
 
@@ -36,8 +24,8 @@ RUN pip install --no-cache-dir -r ./backend/requirements.txt
 # Copy Backend Application
 COPY backend/ ./backend/
 
-# Copy Compiled Frontend SPA from Stage 1
-COPY --from=frontend-builder /app/frontend/dist ./frontend/dist
+# Copy Pre-compiled Frontend SPA Dist
+COPY frontend/dist ./frontend/dist
 
 # Expose Web Port
 EXPOSE 8080
