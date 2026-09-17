@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AlphaHive Architecture & Workflow Map</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #07090e;
+      --panel: #0d121d;
+      --card: #131b2a;
+      --border: #1e293b;
+      --cyan: #06b6d4;
+      --emerald: #10b981;
+      --amber: #f59e0b;
+      --purple: #a855f7;
+      --rose: #f43f5e;
+      --blue: #3b82f6;
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .badge {
+      background: rgba(6, 182, 212, 0.15);
+      color: var(--cyan);
+      border: 1px solid rgba(6, 182, 212, 0.3);
+      padding: 4px 10px;
+      border-radius: 9999px;
+      font-size: 11px;
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+    }
+    .grid-container {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      position: relative;
+    }
+    .column-lane {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .lane-title {
+      font-size: 12px;
+      font-family: 'JetBrains Mono', monospace;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+    .node-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+    .node-card:hover {
+      border-color: var(--cyan);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(6, 182, 212, 0.15);
+    }
+    .node-card.active {
+      border-color: var(--emerald);
+      box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.3);
+    }
+    .node-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 6px;
+    }
+    .node-name {
+      font-weight: 700;
+      font-size: 13px;
+      color: #fff;
+    }
+    .node-tag {
+      font-size: 10px;
+      font-family: 'JetBrains Mono', monospace;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-weight: 600;
+    }
+    .tag-feed { background: rgba(59, 130, 246, 0.15); color: var(--blue); }
+    .tag-agent { background: rgba(16, 185, 129, 0.15); color: var(--emerald); }
+    .tag-risk { background: rgba(245, 158, 11, 0.15); color: var(--amber); }
+    .tag-exec { background: rgba(6, 182, 212, 0.15); color: var(--cyan); }
+    .node-desc {
+      font-size: 11px;
+      color: var(--muted);
+      line-height: 1.4;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .flow-indicator {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 8px;
+      font-size: 10px;
+      color: var(--cyan);
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .flow-pulse {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--cyan);
+      animation: pulse 1.5s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.3; transform: scale(0.8); }
+    }
+    .detail-panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px;
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 20px;
+    }
+    .detail-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 8px;
+    }
+    .code-block {
+      background: #000;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--emerald);
+      overflow-x: auto;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="brand">
+      <span style="font-size: 28px;">🐝</span>
+      <div>
+        <h1 style="font-size: 18px; font-weight: 800;">AlphaHive Architecture Map</h1>
+        <p style="font-size: 12px; color: var(--muted); font-family: 'JetBrains Mono';">Indian Equities & F&O Autonomous Multi-Agent Trading System</p>
+      </div>
+    </div>
+    <div class="badge">AUTONOMOUS MULTI-AGENT TOPOLOGY</div>
+  </header>
+
+  <main class="grid-container">
+    <!-- Lane 1: Ingestion & Feeds -->
+    <div class="column-lane">
+      <div class="lane-title">
+        <span>1. Perception & Ingestion</span>
+        <span class="badge" style="font-size: 9px;">DATA</span>
+      </div>
+
+      <div class="node-card" onclick="showDetail('nse')">
+        <div class="node-header">
+          <span class="node-name">AngelOne / NSE Feed</span>
+          <span class="node-tag tag-feed">SOURCE</span>
+        </div>
+        <div class="node-desc">Tick-by-tick prices for NIFTY, BANKNIFTY, FINNIFTY, & Top F&O Equities.</div>
+        <div class="flow-indicator"><span class="flow-pulse"></span> 0.05 NSE Tick Size</div>
+      </div>
+
+      <div class="node-card" onclick="showDetail('sentinel')">
+        <div class="node-header">
+          <span class="node-name">Market Sentinel Agent</span>
+          <span class="node-tag tag-agent">AGENT</span>
+        </div>
+        <div class="node-desc">Builds 5m candles, NSE 5-Depth Ladder, 21/200 EMA, RSI, ATR, and BB.</div>
+        <div class="flow-indicator"><span class="flow-pulse"></span> Emits MARKET_TICK</div>
+      </div>
+    </div>
+
+    <!-- Lane 2: Quant & Sentiment Intelligence -->
+    <div class="column-lane">
+      <div class="lane-title">
+        <span>2. Strategy & Confluence</span>
+        <span class="badge" style="font-size: 9px;">INTELLIGENCE</span>
+      </div>
+
+      <div class="node-card" onclick="showDetail('quant')">
+        <div class="node-header">
+          <span class="node-name">Quant & Pattern Analyst</span>
+          <span class="node-tag tag-agent">AGENT</span>
+        </div>
+        <div class="node-desc">Smart Money Concepts (SMC): Order Blocks, FVGs, Liquidity Sweeps, Wyckoff Springs.</div>
+        <div class="flow-indicator"><span class="flow-pulse"></span> Proposes Trade Signals</div>
+      </div>
+
+      <div class="node-card" onclick="showDetail('macro')">
+        <div class="node-header">
+          <span class="node-name">Macro & Sentiment Analyst</span>
+          <span class="node-tag tag-agent">AGENT</span>
+        </div>
+        <div class="node-desc">Monitors RBI MPC policy, India VIX, FII/DII cash flows, and Nifty PCR.</div>
+        <div class="flow-indicator"><span class="flow-pulse"></span> High-Vol Event Shield</div>
+      </div>
+    </div>
+
+    <!-- Lane 3: Risk Gate & Execution -->
+    <div class="column-lane">
+      <div class="lane-title">
+        <span>3. Risk & Virtual Execution</span>
+        <span class="badge" style="font-size: 9px;">RISK GATE</span>
+      </div>
+
+      <div class="node-card" onclick="showDetail('cro')">
+        <div class="node-header">
+          <span class="node-name">Chief Risk Officer (CRO)</span>
+          <span class="node-tag tag-risk">RISK GATE</span>
+        </div>
+        <div class="node-desc">Validates 1.5% fixed capital risk in F&O lots, enforces 3% daily drawdown stop, 1:1.8 R:R.</div>
+        <div class="flow-indicator"><span class="flow-pulse"></span> Approves / Blocks Orders</div>
+      </div>
+
+      <div class="node-card" onclick="showDetail('kite')">
+        <div class="node-header">
+          <span class="node-name">Zerodha Kite Mimic</span>
+          <span class="node-tag tag-exec">BROWSER</span>
+        </div>
+        <div class="node-desc">Simulates human trader DOM actions on kite.zerodha.com (Marketwatch, MIS, GTT triggers).</div>
+        <div class="flow-indicator"><span class="flow-pulse"></span> Virtual DOM Flow</div>
+      </div>
+
+      <div class="node-card" onclick="showDetail('broker')">
+        <div class="node-header">
+          <span class="node-name">Virtual Broker Engine</span>
+          <span class="node-tag tag-exec">BROKER</span>
+        </div>
+        <div class="node-desc">Fills with spread & slippage. Deducts ₹20 brokerage, STT (0.0125%), GST (18%), reserves margin.</div>
+        <div class="flow-indicator"><span class="flow-pulse"></span> Settles Cash Flows</div>
+      </div>
+    </div>
+
+    <!-- Lane 4: Analytics & UI Observability -->
+    <div class="column-lane">
+      <div class="lane-title">
+        <span>4. Storage & Cockpit</span>
+        <span class="badge" style="font-size: 9px;">OBSERVABILITY</span>
+      </div>
+
+      <div class="node-card" onclick="showDetail('analytics')">
+        <div class="node-header">
+          <span class="node-name">Performance Analytics</span>
+          <span class="node-tag tag-agent">AGENT</span>
+        </div>
+        <div class="node-desc">Computes authentic Sharpe, Sortino, Win Rate, and Max Drawdown from trade ledger.</div>
+        <div class="flow-indicator"><span class="flow-pulse"></span> P&L Attribution</div>
+      </div>
+
+      <div class="node-card" onclick="showDetail('ui')">
+        <div class="node-header">
+          <span class="node-name">Real-Time UI Cockpit</span>
+          <span class="node-tag tag-feed">FRONTEND</span>
+        </div>
+        <div class="node-desc">React 18 + WebSocket dashboard: Live 5m chart, Agent thought stream, NSE 5-Depth ladder, P&L.</div>
+        <div class="flow-indicator"><span class="flow-pulse"></span> ws://localhost:8080/ws</div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Interactive Detail View -->
+  <section class="detail-panel">
+    <div>
+      <div id="detail-title" class="detail-title">Market Sentinel Agent (Sentinel)</div>
+      <p id="detail-desc" style="font-size: 13px; color: var(--muted); margin-bottom: 12px; line-height: 1.5;">
+        Continuously ingests multi-timeframe candle streams and tick feeds. Evaluates technical momentum, volume delta, and constructs authentic NSE Level 2 5-depth order books with 0.05 tick micro-spreads.
+      </p>
+      <div id="detail-code" class="code-block">
+        // Event Output to Bus
+        {
+          "type": "MARKET_TICK",
+          "symbol": "NIFTY",
+          "price": 24850.05,
+          "order_book": { "bids": [...], "asks": [...], "spread": 0.05 }
+        }
+      </div>
+    </div>
+    <div style="background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 14px;">
+      <h3 style="font-size: 12px; font-family: 'JetBrains Mono'; color: var(--cyan); margin-bottom: 8px;">ACTIVE SPECS</h3>
+      <ul style="font-size: 11px; font-family: 'JetBrains Mono'; color: var(--text); line-height: 1.8; list-style: none;">
+        <li>• Capital: ₹10,00,000 INR</li>
+        <li>• Max Risk/Trade: 1.5% (₹15,000)</li>
+        <li>• Circuit Breaker: 3.0% Max DD</li>
+        <li>• Brokerage: ₹20 flat</li>
+        <li>• STT: 0.0125% Futures Sell</li>
+        <li>• Platform: Zerodha Kite Web</li>
+      </ul>
+    </div>
+  </section>
+
+  <script>
+    const details = {
+      nse: {
+        title: "AngelOne / NSE Market Data Feed",
+        desc: "Ingests live price streams from National Stock Exchange (NSE) indices and F&O equities. During weekends/holidays, the high-fidelity synthetic tick engine simulates authentic price drift with 0.05 minimum tick increments.",
+        code: "GET /api/v1/candles?symbol=NIFTY&interval=5m -> 375 Candles with full TA suite"
+      },
+      sentinel: {
+        title: "Market Sentinel Agent (sentinel.py)",
+        desc: "Ingests 5m candles, computes 21/50/200 EMA, RSI, MACD, ATR, and constructs the real-time NSE 5-Depth Order Book ladder. Evolving price ticks are broadcast to the entire desk.",
+        code: "sentinel_agent.fetch_market_data(symbol) -> Computes TechnicalIndicators.calculate_all()"
+      },
+      quant: {
+        title: "Quant & Pattern Analyst (technical_analyst.py)",
+        desc: "Scans for institutional Smart Money Concepts: Bullish/Bearish Order Blocks, Fair Value Gaps (FVG), Liquidity Sweeps with wick rejections, and Wyckoff Phase C Springs. Evaluates confluence score (0-100%).",
+        code: "technical_analyst_agent.analyze(symbol, df) -> Returns entry, SL, TP, and R:R ratio"
+      },
+      macro: {
+        title: "Macro & Sentiment Analyst (sentiment_analyst.py)",
+        desc: "Monitors Indian macroeconomic catalysts: RBI MPC stance, India VIX volatility gauge (>22 triggers high-volatility block), FII/DII net flows (+₹1,450 Cr), and Nifty Put-Call Ratio (PCR).",
+        code: "sentiment_analyst_agent.evaluate_sentiment() -> High-volatility event barrier protection"
+      },
+      cro: {
+        title: "Chief Risk Officer - CRO Agent (cro_risk_manager.py)",
+        desc: "Enforces strict risk gates: sizes orders to exactly 1.5% capital risk (₹15,000 on ₹10L fund) in Indian F&O lots (NIFTY: 25, BANKNIFTY: 15), checks 1:1.8+ R:R, ensures margin fits within cash buffer, and activates the 3% daily drawdown circuit breaker.",
+        code: "cro_risk_manager_agent.evaluate_and_size_order() -> Approved Lots & Margin Check"
+      },
+      kite: {
+        title: "Zerodha Kite Web Mimic Agent (browser_mimic.py)",
+        desc: "Emulates a human trader operating kite.zerodha.com: focuses Marketwatch, selects MIS Intraday lot size, configures GTT Target and Stoploss triggers, and captures DOM state logs.",
+        code: "browser_mimic_agent.simulate_ui_order_action() -> Step-by-step Kite Web DOM Execution"
+      },
+      broker: {
+        title: "Virtual Broker Execution Engine (execution_engine.py)",
+        desc: "Simulates fills with realistic Indian friction: ₹20 flat brokerage, STT (0.0125% Futures Sell), 18% GST, NSE txn charges, Stamp Duty, and dynamic slippage. Blocks F&O margin from cash on entry and releases it on exit.",
+        code: "execution_engine_agent.execute_order() -> Margin Reservation & Realized P&L Settling"
+      },
+      analytics: {
+        title: "Performance Analytics & Reflection Agent (analytics_agent.py)",
+        desc: "Computes authentic mathematical Sharpe ratio, Sortino ratio, Win Rate %, Profit Factor, and Maximum Drawdown from historical equity curve. Performs post-trade reflection.",
+        code: "analytics_agent.compute_metrics() -> Equity = Cash + Margin + Unrealized MTM"
+      },
+      ui: {
+        title: "Real-Time UI Cockpit (React + Tailwind + WebSockets)",
+        desc: "Single-page trading dashboard running on http://localhost:8080. Displays live 5m chart, real-time agent thought stream, NSE 5-depth ladder, positions table, and trade journal.",
+        code: "App.jsx -> Connected via ws://localhost:8080/api/v1/ws"
+      }
+    };
+
+    function showDetail(key) {
+      const d = details[key];
+      if (d) {
+        document.getElementById('detail-title').innerText = d.title;
+        document.getElementById('detail-desc').innerText = d.desc;
+        document.getElementById('detail-code').innerText = d.code;
+      }
+    }
+  </script>
+</body>
+</html>

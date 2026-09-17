@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "AlphaHive Real-Time Order Execution Sequence",
+    "output": "docs/alphahive-sequence-archify.html",
+    "viewBox": [1120, 680],
+    "column_fit": "spread",
+    "animation": "trace",
+    "quality_profile": "standard",
+    "views": [
+      { "id": "market-to-signal", "label": "Perception to Signal", "focus": ["nse", "sentinel", "quant", "cro"], "note": "Market tick triggers 5m candle aggregation and SMC confluence scoring." },
+      { "id": "risk-and-fill", "label": "CRO Approval & Kite DOM Fill", "focus": ["cro", "kite", "broker", "ledger"], "note": "CRO validates 1.5% lot risk, triggers Zerodha Kite UI actions, and reserves margin." },
+      { "id": "exit-settlement", "label": "TP Exit & Ledger Settlement", "focus": ["sentinel", "broker", "ledger", "ui"], "note": "Target price trigger releases margin and credits realized profit to cash." }
+    ]
+  },
+  "participants": [
+    { "id": "nse", "type": "external", "label": "AngelOne Feed", "sublabel": "NSE Exchange" },
+    { "id": "sentinel", "type": "backend", "label": "Market Sentinel", "sublabel": "perception" },
+    { "id": "quant", "type": "backend", "label": "Quant & SMC", "sublabel": "strategy engine" },
+    { "id": "cro", "type": "security", "label": "CRO Officer", "sublabel": "risk gate" },
+    { "id": "kite", "type": "external", "label": "Zerodha Kite", "sublabel": "web terminal" },
+    { "id": "broker", "type": "backend", "label": "Virtual Broker", "sublabel": "fill & charges" },
+    { "id": "ledger", "type": "database", "label": "SQLite Ledger", "sublabel": "alphahive.db" },
+    { "id": "ui", "type": "frontend", "label": "Trading Cockpit", "sublabel": "React UI" }
+  ],
+  "segments": [
+    { "from": 150, "to": 280, "label": "Perception & Confluence" },
+    { "from": 290, "to": 440, "label": "CRO Gate & Execution" },
+    { "from": 450, "to": 590, "label": "TP Exit & Settlement" }
+  ],
+  "messages": [
+    { "id": "m1", "from": "nse", "to": "sentinel", "y": 165, "label": "Tick: NIFTY 24,850.10", "variant": "emphasis" },
+    { "id": "m2", "from": "sentinel", "to": "ui", "y": 200, "label": "ws: MARKET_TICK", "variant": "dashed" },
+    { "id": "m3", "from": "sentinel", "to": "quant", "y": 235, "label": "5m candles + TA suite", "variant": "default" },
+    { "id": "m4", "from": "quant", "to": "cro", "y": 268, "label": "Signal: Buy 12 Lots (R:R 2.0:1)", "variant": "emphasis" },
+    { "id": "m5", "from": "cro", "to": "kite", "y": 308, "label": "Approve Order (1.5% Risk Sized)", "variant": "security" },
+    { "id": "m6", "from": "kite", "to": "broker", "y": 342, "label": "DOM: MIS Order & GTT SL/TP", "variant": "emphasis" },
+    { "id": "m7", "from": "broker", "to": "ledger", "y": 376, "label": "Reserve Margin & Deduct ₹24 Fee", "variant": "emphasis" },
+    { "id": "m8", "from": "broker", "to": "ui", "y": 410, "label": "ws: ORDER_FILLED Event", "variant": "dashed" },
+    { "id": "m9", "from": "nse", "to": "sentinel", "y": 470, "label": "LTP hits Target ₹24,950 (TP)", "variant": "emphasis" },
+    { "id": "m10", "from": "sentinel", "to": "broker", "y": 504, "label": "Trigger TP Position Close", "variant": "emphasis" },
+    { "id": "m11", "from": "broker", "to": "ledger", "y": 538, "label": "Release Margin + Credit Net P&L", "variant": "security" },
+    { "id": "m12", "from": "broker", "to": "ui", "y": 572, "label": "ws: TRADE_CLOSED (+₹29,835)", "variant": "return" }
+  ],
+  "activations": [
+    { "participant": "sentinel", "from": 160, "to": 240, "type": "backend" },
+    { "participant": "quant", "from": 230, "to": 275, "type": "backend" },
+    { "participant": "cro", "from": 265, "to": 315, "type": "security" },
+    { "participant": "broker", "from": 338, "to": 415, "type": "backend" },
+    { "participant": "broker", "from": 500, "to": 578, "type": "backend" }
+  ],
+  "cards": [
+    { "dot": "cyan", "title": "Perception to Signal", "items": ["AngelOne / NSE real-time ticks stream with 0.05 step size", "Quant SMC scans for Order Blocks and Liquidity Sweeps", "Confluence score above 45% proposes structured trade"] },
+    { "dot": "amber", "title": "CRO Gate & Broker Fill", "items": ["CRO calculates precise lot size based on 1.5% capital risk", "Zerodha Kite Web UI DOM simulation places order", "Margin is locked in ledger and entry charges deducted"] },
+    { "dot": "emerald", "title": "Exit & Settlement", "items": ["Continuous Mark-to-Market ticks trigger automatic TP/SL exits", "STT (0.0125%), brokerage, and GST are calculated", "Margin is unblocked and net realized P&L is credited to cash"] }
+  ]
+}

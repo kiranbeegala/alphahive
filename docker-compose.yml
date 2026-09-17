@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  alphahive:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: alphahive:latest
+    container_name: alphahive-desk
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      - PORT=8080
+      - ANGELONE_API_KEY=${ANGELONE_API_KEY:-ugPbHX57}
+      - ANGELONE_CLIENT_ID=${ANGELONE_CLIENT_ID:-B204938}
+      - ANGELONE_MPIN=${ANGELONE_MPIN:-2118}
+      - ANGELONE_TOTP_SECRET=${ANGELONE_TOTP_SECRET:-AGGMQ25K6DP77SFFEBZSDYVTVM}
+    volumes:
+      - alphahive_data:/app/backend/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/v1/status"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  alphahive_data:
+    driver: local

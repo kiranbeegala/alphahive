@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "AlphaHive Autonomous Multi-Agent Trading Desk",
+    "output": "docs/alphahive-archify-rendered.html",
+    "visual_preset": "blueprint",
+    "animation": "trace",
+    "quality_profile": "standard",
+    "views": [
+      {
+        "id": "perception-flow",
+        "label": "Market Ingestion & Perception",
+        "focus": ["nse_feed", "sentinel", "tech_analyst", "sentiment_agent"],
+        "note": "AngelOne and NSE ticks stream into Market Sentinel and trigger SMC pattern recognition."
+      },
+      {
+        "id": "risk-execution",
+        "label": "CRO Gate & Zerodha Kite Mimic",
+        "focus": ["tech_analyst", "cro_agent", "kite_mimic", "execution_broker"],
+        "note": "CRO validates 1.5% lot risk and triggers Zerodha Kite DOM emulation."
+      },
+      {
+        "id": "post-trade-loop",
+        "label": "Settlement & Real-Time Cockpit",
+        "focus": ["execution_broker", "sqlite_db", "event_bus", "analytics_agent", "frontend_cockpit"],
+        "note": "Cash-flow settling, authentic Sharpe computation, and live WebSocket streaming."
+      }
+    ]
+  },
+  "components": [
+    { "id": "nse_feed", "type": "external", "label": "AngelOne / NSE Feed", "sublabel": "0.05 tick size", "pos": [30, 290], "size": [136, 62], "tag": "market data" },
+    { "id": "sentinel", "type": "backend", "label": "Market Sentinel", "sublabel": "5m candles + TA suite", "pos": [260, 290], "size": [140, 62], "tag": "perception" },
+    { "id": "tech_analyst", "type": "backend", "label": "Quant & SMC Analyst", "sublabel": "Order Blocks + Wyckoff", "pos": [490, 170], "size": [152, 62], "tag": "strategy" },
+    { "id": "sentiment_agent", "type": "backend", "label": "Macro Sentiment", "sublabel": "RBI + India VIX", "pos": [490, 410], "size": [152, 62], "tag": "catalysts" },
+    { "id": "cro_agent", "type": "security", "label": "Chief Risk Officer", "sublabel": "1.5% Risk in F&O Lots", "pos": [730, 290], "size": [152, 62], "tag": "risk gate" },
+    { "id": "kite_mimic", "type": "external", "label": "Zerodha Kite Mimic", "sublabel": "kite.zerodha.com DOM", "pos": [960, 170], "size": [150, 62], "tag": "browser UI" },
+    { "id": "execution_broker", "type": "backend", "label": "Virtual Broker", "sublabel": "F&O Margin + Friction", "pos": [960, 410], "size": [150, 62], "tag": "settlement" },
+    { "id": "sqlite_db", "type": "database", "label": "SQLite Ledger", "sublabel": "trades & portfolio", "pos": [1200, 410], "size": [136, 62], "tag": "storage" },
+    { "id": "analytics_agent", "type": "backend", "label": "Analytics Agent", "sublabel": "Sharpe & Drawdown", "pos": [1200, 560], "size": [136, 62], "tag": "quant metrics" },
+    { "id": "event_bus", "type": "messagebus", "label": "Async EventBus", "sublabel": "WebSocket broadcast", "pos": [1200, 220], "size": [136, 62], "tag": "realtime" },
+    { "id": "frontend_cockpit", "type": "frontend", "label": "UI Cockpit", "sublabel": "React + Chart.js", "pos": [1410, 220], "size": [130, 62], "tag": "observability" }
+  ],
+  "boundaries": [
+    { "kind": "region", "label": "AlphaHive Autonomous Trading Desk", "wraps": ["sentinel", "tech_analyst", "sentiment_agent", "cro_agent", "kite_mimic", "execution_broker", "sqlite_db", "analytics_agent", "event_bus"], "pad": 18 },
+    { "kind": "security-group", "label": "Risk & Execution Core", "wraps": ["cro_agent", "kite_mimic", "execution_broker"], "pad": 14 }
+  ],
+  "connections": [
+    { "from": "nse_feed", "to": "sentinel", "label": "ticks", "variant": "emphasis" },
+    { "from": "sentinel", "to": "tech_analyst", "label": "5m candles", "route": "orthogonal-h" },
+    { "from": "sentinel", "to": "sentiment_agent", "label": "price context", "route": "orthogonal-h" },
+    { "from": "tech_analyst", "to": "cro_agent", "label": "SMC signals", "variant": "emphasis", "route": "orthogonal-h" },
+    { "from": "sentiment_agent", "to": "cro_agent", "label": "macro report", "route": "orthogonal-h" },
+    { "from": "cro_agent", "to": "kite_mimic", "label": "approved order", "variant": "security", "route": "orthogonal-h" },
+    { "from": "kite_mimic", "to": "execution_broker", "label": "execute", "variant": "emphasis", "labelDy": 30 },
+    { "from": "cro_agent", "to": "execution_broker", "label": "lot sizing", "variant": "security" },
+    { "from": "execution_broker", "to": "sqlite_db", "label": "margin & fees", "variant": "emphasis" },
+    { "from": "sqlite_db", "to": "analytics_agent", "label": "trade logs", "route": "orthogonal-v" },
+    { "from": "execution_broker", "to": "event_bus", "label": "order events", "variant": "dashed" },
+    { "from": "sentinel", "to": "event_bus", "label": "market ticks", "variant": "dashed", "fromSide": "top", "toSide": "top", "via": [[330, 80], [1268, 80]] },
+    { "from": "event_bus", "to": "frontend_cockpit", "label": "ws:8080/ws", "variant": "emphasis" }
+  ],
+  "cards": [
+    { "dot": "cyan", "title": "Market Perception", "items": ["AngelOne / NSE real-time feeds with 0.05 tick size", "Market Sentinel builds 5m candles and indicators", "NSE 5-depth order book ladder generated on each tick"] },
+    { "dot": "amber", "title": "CRO Risk Gate", "items": ["1.5% capital risk per trade sized in F&O lots", "3.0% daily drawdown stop circuit breaker", "1:1.8 minimum risk-reward ratio requirement"] },
+    { "dot": "emerald", "title": "Execution & Settlement", "items": ["Zerodha Kite Web shadow DOM automation", "Realistic friction: ₹20 brokerage, STT (0.0125%), GST 18%", "Mathematical Sharpe, Sortino, and live P&L streaming"] }
+  ]
+}

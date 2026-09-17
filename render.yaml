@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: alphahive-trading-desk
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    region: singapore # Closest free region to India
+    envVars:
+      - key: PORT
+        value: 10000
+      - key: ANGELONE_API_KEY
+        sync: false
+      - key: ANGELONE_CLIENT_ID
+        sync: false
+      - key: ANGELONE_MPIN
+        sync: false
+      - key: ANGELONE_TOTP_SECRET
+        sync: false
