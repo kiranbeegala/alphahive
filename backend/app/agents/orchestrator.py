@@ -113,8 +113,8 @@ class TradingDeskOrchestrator:
                         signal
                     )
 
-                    # 4. Macro Sentiment Assessment (RBI Policy / India VIX)
-                    sentiment = sentiment_analyst_agent.evaluate_sentiment(symbol)
+                    # 4. Macro Sentiment Assessment — LIVE RSS + Real India VIX
+                    sentiment = await sentiment_analyst_agent.async_evaluate_sentiment(symbol)
                     await self._broadcast_agent_thought(
                         "Macro & Sentiment Analyst", "Global Catalyst", "ANALYSIS",
                         f"India Macro Pulse: {sentiment['market_regime']} (VIX: {sentiment['india_vix']}, FII/DII: {sentiment['fii_dii_net']}). Catalyst: '{sentiment['top_catalyst'][:60]}...'",

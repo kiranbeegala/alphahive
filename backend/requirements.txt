@@ -13,4 +13,5 @@ aiofiles>=23.2.1
 pytz>=2024.1
 pyotp>=2.9.0
 smartapi-python>=1.4.7
+feedparser>=6.0.10
 
